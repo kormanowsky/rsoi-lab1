@@ -32,7 +32,14 @@ export class PostgresPersonStorage implements PersonStorage {
     async createPerson(personData: Omit<Person, 'id'>): Promise<Person['id']> {
         await this.readyPromise;
 
-        const result = await this.client.query('INSERT INTO Persons VALUES TODO');
+        const result = await this.client.query(
+            `INSERT INTO Persons(name, age, work, address) VALUES 
+            ($1::TEXT, $2::INTEGER, $3::TEXT, $4::TEXT) 
+            RETURNING id;`, 
+            [personData.name, personData.age, personData.work, personData.address]
+        );
+
+        console.log(result);
 
         return result.rows[0].id;
     }
@@ -53,8 +60,8 @@ export class PostgresPersonStorage implements PersonStorage {
         await this.client.connect();
 
         await this.client.query(`CREATE TABLE IF NOT EXISTS Persons (
-            id INTEGER, 
-            name TEXT,
+            id SERIAL PRIMARY KEY, 
+            name TEXT NOT NULL,
             age INTEGER NULL,
             work TEXT NULL,
             address TEXT NULL

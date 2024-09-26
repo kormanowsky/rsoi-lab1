@@ -1,5 +1,6 @@
 import express from 'express';
 import { PersonLogic } from '../logic';
+import { validatePersonData } from './validators';
 
 export class PersonServer {
     constructor(logic: PersonLogic, port: number = 8888) {
@@ -61,16 +62,26 @@ export class PersonServer {
     }
 
     protected handleCreateOnePersonRequest(req, res): void {
+        const personData = req.body;
+
+        if (!validatePersonData(personData)) {
+            return res
+                .status(400)
+                .send({
+                    message: 'invalid data'
+                });
+        }
+
         this.logic
-            .createPerson(req.body)
-            .then((person) => {
-                res.send(person);
+            .createPerson(personData)
+            .then((id) => {
+                res
+                    .set('Location', `/api/v1/persons/${id}`)
+                    .sendStatus(201);
             })
             .catch((err) => {
-                // TODO
                 res.sendStatus(500);
             });
-
     }
 
     protected handleUpdateOnePersonRequest(req, res): void {
