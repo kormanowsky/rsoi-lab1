@@ -4,11 +4,16 @@
   "description": "![GitHub Classroom Workflow](../../workflows/GitHub%20Classroom%20Workflow/badge.svg?branch=master)",
   "main": "index.js",
   "scripts": {
+    "serve": "npx tsx ./src/run.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mikhail Kormanovskii",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.21.0"
+    "express": "4.21.0",
+    "tsx": "4.19.1"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.0"
   }
 }
