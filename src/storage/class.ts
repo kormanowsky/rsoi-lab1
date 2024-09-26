@@ -51,6 +51,14 @@ export class PostgresPersonStorage implements PersonStorage {
 
     protected async initStorage() {
         await this.client.connect();
+
+        await this.client.query(`CREATE TABLE IF NOT EXISTS Persons (
+            id INTEGER, 
+            name TEXT,
+            age INTEGER NULL,
+            work TEXT NULL,
+            address TEXT NULL
+        );`);
     }
 
     private client: typeof pg.Client;

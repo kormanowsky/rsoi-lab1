@@ -13,6 +13,15 @@ services:
       - ./postgres/:/docker-entrypoint-initdb.d/
     ports:
       - "5432:5432"
+  app: 
+    image: rsoi-1
+    container_name: app
+    restart: unless-stopped
+    environment:
+      RSOI1_PORT: 8888
+      RSOI1_STORAGE_CONN_STRING: "postgresql://postgres:postgres@postgres:5432/postgres"
+    ports: 
+      - "8888:8888"
 
 volumes:
   db-data:
