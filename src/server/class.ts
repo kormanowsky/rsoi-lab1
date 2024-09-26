@@ -103,8 +103,24 @@ export class PersonServer {
     }
 
     protected handleUpdateOnePersonRequest(req, res): void {
+        const id = parseInt(req.params.id, 10);
+
+        if (isNaN(id)) {
+            return res.status(404).send({});
+        }
+
+        const personData = req.body;
+
+        if (!validatePersonData(personData)) {
+            return res
+                .status(400)
+                .send({
+                    message: 'invalid data'
+                });
+        }
+
         this.logic
-            .updatePerson({id: req.params.id, ...req.body})
+            .updatePerson({id, ...personData})
             .then(() => {
                 res.sendStatus(200);
             })

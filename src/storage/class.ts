@@ -50,13 +50,18 @@ export class PostgresPersonStorage implements PersonStorage {
     async updatePerson(person: Person): Promise<void> {
         await this.readyPromise;
 
-        await this.client.query('UPDATE Persons SET TODO WHERE id = $1::int32', person.id);
+        await this.client.query(
+            `UPDATE Persons 
+            SET name = $2::TEXT, age = $3::INTEGER, work = $4::TEXT, address = $5::TEXT 
+            WHERE id = $1::INTEGER`, 
+            [person.id, person.name, person.age, person.work, person.address]
+        );
     }
 
     async deletePerson(id: Person['id']): Promise<void> {
         await this.readyPromise;
 
-        await this.client.query('DELETE FROM Persons WHERE id = $1::int32', id);
+        await this.client.query('DELETE FROM Persons WHERE id = $1::INTEGER', [id]);
     }
 
     protected async initStorage() {
