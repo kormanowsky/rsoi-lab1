@@ -24,7 +24,10 @@ export class PostgresPersonStorage implements PersonStorage {
     async getPerson(id: Person['id']): Promise<Person | null> {
         await this.readyPromise;
 
-        const result = await this.client.query('SELECT * FROM Persons WHERE id = $1::int32', id);
+        const result = await this.client.query(
+            'SELECT * FROM Persons WHERE id = $1::INTEGER', 
+            [id]
+        );
 
         return result.rows[0];
     }
