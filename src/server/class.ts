@@ -1,17 +1,19 @@
 import express from 'express';
+import { PersonLogic } from '../logic';
 
-export class Server {
-    constructor(port: number = 8888) {
+export class PersonServer {
+    constructor(logic: PersonLogic, port: number = 8888) {
         this.server = express();
         this.server.use(express.json());
 
         this.port = port;
+        this.logic = logic;
         
-        this.handleGetAllRequest = this.handleGetAllRequest.bind(this);
-        this.handleGetOneRequest = this.handleGetOneRequest.bind(this);
-        this.handleCreateOneRequest = this.handleCreateOneRequest.bind(this);
-        this.handleUpdateOneRequest = this.handleUpdateOneRequest.bind(this);
-        this.handleDeleteOneRequest = this.handleDeleteOneRequest.bind(this);
+        this.handleGetAllPersonsRequest = this.handleGetAllPersonsRequest.bind(this);
+        this.handleGetOnePersonRequest = this.handleGetOnePersonRequest.bind(this);
+        this.handleCreateOnePersonRequest = this.handleCreateOnePersonRequest.bind(this);
+        this.handleUpdateOnePersonRequest = this.handleUpdateOnePersonRequest.bind(this);
+        this.handleDeleteOnePersonRequest = this.handleDeleteOnePersonRequest.bind(this);
 
         this.initRoutes();
     }
@@ -26,39 +28,76 @@ export class Server {
     }
 
     protected initRoutes(): void {
-        this.server.get('/api/v1/persons', this.handleGetAllRequest);
-        this.server.post('/api/v1/persons', this.handleCreateOneRequest);
-        this.server.get('/api/v1/persons/:id', this.handleGetOneRequest);
-        this.server.patch('/api/v1/persons/:id', this.handleUpdateOneRequest);
-        this.server.delete('/api/v1/persons/:id', this.handleDeleteOneRequest);
+        this.server.get('/api/v1/persons', this.handleGetAllPersonsRequest);
+        this.server.post('/api/v1/persons', this.handleCreateOnePersonRequest);
+        this.server.get('/api/v1/persons/:id(\d+)', this.handleGetOnePersonRequest);
+        this.server.patch('/api/v1/persons/:id(\d+)', this.handleUpdateOnePersonRequest);
+        this.server.delete('/api/v1/persons/:id(\d+)', this.handleDeleteOnePersonRequest);
         // TODO: роут 404?
     }
 
-    protected handleGetAllRequest(req, res): void {
-        res.sendStatus(200);
+    protected handleGetAllPersonsRequest(_, res): void {
+        this.logic
+            .getAllPersons()
+            .then((persons) => {
+                res.send(persons);
+            })
+            .catch((err) => {
+                // TODO
+                res.sendStatus(500);
+            });
+    }
+
+    protected handleGetOnePersonRequest(req, res): void {
+        this.logic
+            .getPerson(req.params.id)
+            .then((person) => {
+                res.send(person);
+            })
+            .catch((err) => {
+                // TODO
+                res.sendStatus(500);
+            });
+    }
+
+    protected handleCreateOnePersonRequest(req, res): void {
+        this.logic
+            .createPerson(req.body)
+            .then((person) => {
+                res.send(person);
+            })
+            .catch((err) => {
+                // TODO
+                res.sendStatus(500);
+            });
 
     }
 
-    protected handleGetOneRequest(req, res): void {
-        res.sendStatus(200);
-
+    protected handleUpdateOnePersonRequest(req, res): void {
+        this.logic
+            .updatePerson({id: req.params.id, ...req.body})
+            .then(() => {
+                res.sendStatus(200);
+            })
+            .catch((err) => {
+                // TODO
+                res.sendStatus(500);
+            });
     }
 
-    protected handleCreateOneRequest(req, res): void {
-        res.sendStatus(200);
-
-    }
-
-    protected handleUpdateOneRequest(req, res): void {
-        res.sendStatus(200);
-
-    }
-
-    protected handleDeleteOneRequest(req, res): void {
-        res.sendStatus(200);
-        
+    protected handleDeleteOnePersonRequest(req, res): void {
+        this.logic
+            .deletePerson(req.params.id)
+            .then(() => {
+                res.sendStatus(200);
+            })
+            .catch((err) => {
+                // TODO
+                res.sendStatus(500);
+            });
     }
 
     private server: ReturnType<typeof express>;
     private port: number;
+    private logic: PersonLogic;
 }
