@@ -1,7 +1,10 @@
-export class Api {
+export class Server {
     constructor(port: number = 8888) {
         
     }
+
+    start(): void {}
+    stop(): void {}
 
     protected handleGetAllRequest(): void {
 
