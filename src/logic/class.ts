@@ -17,7 +17,7 @@ export class PersonLogic {
         return this.storage.createPerson(personData);
     }
 
-    updatePerson(person: Person): Promise<Person | null> {
+    updatePerson(person: Partial<Person>): Promise<Person | null> {
         return this.storage.updatePerson(person);
     }
 

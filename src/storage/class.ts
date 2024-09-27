@@ -40,15 +40,42 @@ export class PostgresPersonStorage implements PersonStorage {
         return result.rows[0].id;
     }
 
-    async updatePerson(person: Person): Promise<Person | null> {
+    async updatePerson(person: Partial<Person>): Promise<Person | null> {
         await this.readyPromise;
+
+        if (person.id == null) {
+            return null;
+        }
+
+        const params: unknown[] = [person.id];
+        const setExprs: string[] = [];
+
+        if (person.hasOwnProperty('name')) {
+            params.push(person.name);
+            setExprs.push(`name = $${setExprs.length + 1}::TEXT`);
+        }
+
+        if (person.hasOwnProperty('age')) {
+            params.push(person.age);
+            setExprs.push(`age = $${setExprs.length + 1}::INTEGER`);
+        }
+
+        if (person.hasOwnProperty('work')) {
+            params.push(person.work);
+            setExprs.push(`work = $${setExprs.length + 1}::TEXT`)
+        }
+
+        if (person.hasOwnProperty('address')) {
+            params.push(person.address);
+            setExprs.push(`address = $${setExprs.length + 1}::TEXT`)
+        }
 
         const result = await this.client.query(
             `UPDATE Persons 
-            SET name = $2::TEXT, age = $3::INTEGER, work = $4::TEXT, address = $5::TEXT 
+            SET ${setExprs.join(', ')} 
             WHERE id = $1::INTEGER
             RETURNING id, name, age, work, address;`, 
-            [person.id, person.name, person.age, person.work, person.address]
+            params
         );
 
         if (result.rows.length === 0) {

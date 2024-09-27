@@ -10,6 +10,6 @@ export interface PersonStorage {
     getAllPersons(): Promise<Person[]>;
     getPerson(id: Person['id']): Promise<Person | null>;
     createPerson(personData: Omit<Person, 'id'>): Promise<Person['id']>;
-    updatePerson(person: Person): Promise<Person | null>;
+    updatePerson(person: Partial<Person>): Promise<Person | null>;
     deletePerson(id: Person['id']): Promise<boolean>;
 }
