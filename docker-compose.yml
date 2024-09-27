@@ -14,7 +14,7 @@ services:
     ports:
       - "5432:5432"
   app: 
-    image: ghcr.io/kormanowsky/rsoi-lab1:latest
+    image: cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
     container_name: app
     restart: unless-stopped
     environment:

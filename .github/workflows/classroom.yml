@@ -45,6 +45,8 @@ jobs:
         env: 
           YC_VM_USERNAME: ${{ secrets.YC_VM_USERNAME }}
           YC_VM_SSH_KEY: ${{ secrets.YC_VM_SSH_KEY }}
+          CR_REGISTRY: ${{ vars.YC_CR_REGISTRY }}
+          CR_REPOSITORY: ${{ vars.YC_CR_REPOSITORY }}
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
           folder-id: ${{ vars.YC_FOLDER_ID }}
