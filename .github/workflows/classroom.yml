@@ -42,6 +42,9 @@ jobs:
       - name: Deploy COI VM
         id: deploy-coi
         uses: yc-actions/yc-coi-deploy@v2
+        env: 
+          YC_VM_USERNAME: ${{ secrets.YC_VM_USERNAME }}
+          YC_VM_SSH_KEY: ${{ secrets.YC_VM_SSH_KEY }}
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
           folder-id: ${{ vars.YC_FOLDER_ID }}
@@ -51,6 +54,7 @@ jobs:
           vm-memory: 2Gb
           vm-core-fraction: 100
           vm-subnet-id: ${{ vars.YC_SUBNET_ID }}
+          user-data-path: './user-data.yml'
           docker-compose-path: './docker-compose.yml'
 
       - name: Run API Tests
