@@ -16,28 +16,42 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # - name: Login to Docker Hub
+      #  uses: docker/login-action@v3
+      #  with:
+      #    username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #    password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Login to Yandex Cloud Container Registry
-        id: login-cr
-        uses: yc-actions/yc-cr-login@v1
+      # - name: Login to Yandex Cloud Container Registry
+      #   id: login-cr
+      #   uses: yc-actions/yc-cr-login@v1
+      #   with:
+      #     yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      # - name: Build, tag, and push image to Yandex Cloud Container Registry
+      #   env:
+      #     CR_REGISTRY: ${{ vars.CR_REGISTRY }}
+      #     CR_REPOSITORY: ${{ vars.CR_REPOSITORY }}
+      #     IMAGE_TAG: ${{ github.sha }}
+      #   run: |
+      #     docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
+      #     docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
+      #     echo "FROM cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG" | docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest -
+      #     docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
+
+      - name: Deploy COI VM
+        id: deploy-coi
+        uses: yc-actions/yc-coi-deploy@v2
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-
-      - name: Build, tag, and push image to Yandex Cloud Container Registry
-        env:
-          CR_REGISTRY: ${{ vars.CR_REGISTRY }}
-          CR_REPOSITORY: ${{ vars.CR_REPOSITORY }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
-          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
-          echo "FROM cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG" | docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest -
-          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
+          folder-id: ${{ vars.YC_FOLDER_ID }}
+          vm-name: ${{ vars.YC_VM_NAME }}
+          vm-service-account-id: ${{ vars.YC_SA_ID }}
+          vm-cores: 2
+          vm-memory: 2Gb
+          vm-core-fraction: 100
+          vm-subnet-id: ${{ vars.YC_SUBNET_ID }}
+          docker-compose-path: './docker-compose.yml'
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
