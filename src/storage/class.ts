@@ -24,7 +24,10 @@ export class PostgresPersonStorage implements PersonStorage {
     async getPerson(id: Person['id']): Promise<Person | null> {
         await this.readyPromise;
 
-        const result = await this.client.query('SELECT * FROM Persons WHERE id = $1::int32', id);
+        const result = await this.client.query(
+            'SELECT * FROM Persons WHERE id = $1::INTEGER', 
+            [id]
+        );
 
         return result.rows[0];
     }
@@ -32,7 +35,14 @@ export class PostgresPersonStorage implements PersonStorage {
     async createPerson(personData: Omit<Person, 'id'>): Promise<Person['id']> {
         await this.readyPromise;
 
-        const result = await this.client.query('INSERT INTO Persons VALUES TODO');
+        const result = await this.client.query(
+            `INSERT INTO Persons(name, age, work, address) VALUES 
+            ($1::TEXT, $2::INTEGER, $3::TEXT, $4::TEXT) 
+            RETURNING id;`, 
+            [personData.name, personData.age, personData.work, personData.address]
+        );
+
+        console.log(result);
 
         return result.rows[0].id;
     }
@@ -40,17 +50,30 @@ export class PostgresPersonStorage implements PersonStorage {
     async updatePerson(person: Person): Promise<void> {
         await this.readyPromise;
 
-        await this.client.query('UPDATE Persons SET TODO WHERE id = $1::int32', person.id);
+        await this.client.query(
+            `UPDATE Persons 
+            SET name = $2::TEXT, age = $3::INTEGER, work = $4::TEXT, address = $5::TEXT 
+            WHERE id = $1::INTEGER`, 
+            [person.id, person.name, person.age, person.work, person.address]
+        );
     }
 
     async deletePerson(id: Person['id']): Promise<void> {
         await this.readyPromise;
 
-        await this.client.query('DELETE FROM Persons WHERE id = $1::int32', id);
+        await this.client.query('DELETE FROM Persons WHERE id = $1::INTEGER', [id]);
     }
 
     protected async initStorage() {
         await this.client.connect();
+
+        await this.client.query(`CREATE TABLE IF NOT EXISTS Persons (
+            id SERIAL PRIMARY KEY, 
+            name TEXT NOT NULL,
+            age INTEGER NULL,
+            work TEXT NULL,
+            address TEXT NULL
+        );`);
     }
 
     private client: typeof pg.Client;

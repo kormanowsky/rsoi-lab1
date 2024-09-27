@@ -1,7 +1,7 @@
 version: "3"
 services:
   postgres:
-    image: library/postgres:13
+    image: cr.yandex/{{ env.CR_REGISTRY }}/postgres:13
     container_name: postgres
     restart: on-failure
     environment:
@@ -10,9 +10,15 @@ services:
       POSTGRES_DB: postgres
     volumes:
       - db-data:/var/lib/postgresql/data
-      - ./postgres/:/docker-entrypoint-initdb.d/
-    ports:
-      - "5432:5432"
+  app: 
+    image: cr.yandex/{{ env.CR_REGISTRY }}/{{ env.CR_REPOSITORY }}:latest
+    container_name: app
+    restart: unless-stopped
+    environment:
+      RSOI1_PORT: 8888
+      RSOI1_STORAGE_CONN_STRING: "postgresql://postgres:postgres@postgres:5432/postgres"
+    ports: 
+      - "8888:8888"
 
 volumes:
   db-data:
