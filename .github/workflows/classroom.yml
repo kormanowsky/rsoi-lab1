@@ -56,8 +56,8 @@ jobs:
           vm-memory: 2Gb
           vm-core-fraction: 100
           vm-subnet-id: ${{ vars.YC_SUBNET_ID }}
-          user-data-path: './user-data.yml'
-          docker-compose-path: './docker-compose.yml'
+          user-data-path: './.yandex-cloud/user-data.yml'
+          docker-compose-path: './.yandex-cloud/docker-compose.yml'
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
