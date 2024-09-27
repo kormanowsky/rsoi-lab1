@@ -121,8 +121,12 @@ export class PersonServer {
 
         this.logic
             .updatePerson({id, ...personData})
-            .then(() => {
-                res.sendStatus(200);
+            .then((person) => {
+                if (person != null) {
+                    res.send(person);
+                } else {
+                    res.status(404).send();
+                }
             })
             .catch((err) => {
                 // TODO
@@ -134,10 +138,11 @@ export class PersonServer {
         this.logic
             .deletePerson(req.params.id)
             .then(() => {
-                res.sendStatus(200);
+                res.sendStatus(204);
             })
             .catch((err) => {
                 // TODO
+                console.error(err);
                 res.sendStatus(500);
             });
     }

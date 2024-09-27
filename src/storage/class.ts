@@ -5,12 +5,7 @@ import { Person, PersonStorage } from '../logic';
 export class PostgresPersonStorage implements PersonStorage {
     constructor(connectionString: string) {
         this.client = new pg.Client({connectionString});
-
-        let resolveReadyPromise: () => void = () => {};
-
-        this.readyPromise = new Promise((resolve) => {resolveReadyPromise = resolve});
-
-        this.initStorage().then(resolveReadyPromise);
+        this.readyPromise = this.initStorage();
     }
 
     async getAllPersons(): Promise<Person[]> {
@@ -29,7 +24,7 @@ export class PostgresPersonStorage implements PersonStorage {
             [id]
         );
 
-        return result.rows[0];
+        return result.rows.length > 0 ? result.rows[0] : null;
     }
 
     async createPerson(personData: Omit<Person, 'id'>): Promise<Person['id']> {
@@ -42,26 +37,36 @@ export class PostgresPersonStorage implements PersonStorage {
             [personData.name, personData.age, personData.work, personData.address]
         );
 
-        console.log(result);
-
         return result.rows[0].id;
     }
 
-    async updatePerson(person: Person): Promise<void> {
+    async updatePerson(person: Person): Promise<Person | null> {
         await this.readyPromise;
 
-        await this.client.query(
+        const result = await this.client.query(
             `UPDATE Persons 
             SET name = $2::TEXT, age = $3::INTEGER, work = $4::TEXT, address = $5::TEXT 
-            WHERE id = $1::INTEGER`, 
+            WHERE id = $1::INTEGER
+            RETURNING id, name, age, work, address;`, 
             [person.id, person.name, person.age, person.work, person.address]
         );
+
+        if (result.rows.length === 0) {
+            return null;
+        }
+
+        return result.rows[0];
     }
 
-    async deletePerson(id: Person['id']): Promise<void> {
+    async deletePerson(id: Person['id']): Promise<boolean> {
         await this.readyPromise;
 
-        await this.client.query('DELETE FROM Persons WHERE id = $1::INTEGER', [id]);
+        const result = await this.client.query(
+            'DELETE FROM Persons WHERE id = $1::INTEGER RETURNING id;', 
+            [id]
+        );
+
+        return result.rows.length > 0;
     }
 
     protected async initStorage() {

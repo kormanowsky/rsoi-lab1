@@ -17,11 +17,11 @@ export class PersonLogic {
         return this.storage.createPerson(personData);
     }
 
-    updatePerson(person: Person): Promise<void> {
+    updatePerson(person: Person): Promise<Person | null> {
         return this.storage.updatePerson(person);
     }
 
-    deletePerson(id: Person['id']): Promise<void> {
+    deletePerson(id: Person['id']): Promise<boolean> {
         return this.storage.deletePerson(id);
     }
 
