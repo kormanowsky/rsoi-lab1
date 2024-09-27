@@ -1,7 +1,7 @@
 version: "3"
 services:
   postgres:
-    image: cr.yandex/$CR_REGISTRY/postgres:13
+    image: cr.yandex/{{ env.CR_REGISTRY }}/postgres:13
     container_name: postgres
     restart: on-failure
     environment:
@@ -10,10 +10,8 @@ services:
       POSTGRES_DB: postgres
     volumes:
       - db-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
   app: 
-    image: cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
+    image: cr.yandex/{{ env.CR_REGISTRY }}/{{ env.CR_REPOSITORY }}:latest
     container_name: app
     restart: unless-stopped
     environment:

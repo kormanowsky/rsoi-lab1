@@ -9,9 +9,3 @@ users:
   shell: /bin/bash
   ssh_authorized_keys:
   - {{ env.YC_VM_SSH_KEY }}
-write_files: 
-- path: /etc/environment
-  content: |
-    CR_REGISTRY="{{ env.CR_REGISTRY }}"
-    CR_REPOSITORY="{{ env.CR_REPOSITORY }}"
-  append: true
