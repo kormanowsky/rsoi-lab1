@@ -11,26 +11,27 @@ jobs:
     name: Autograding
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-          - name: Login to Yandex Cloud Container Registry
-      id: login-cr
-      uses: yc-actions/yc-cr-login@v1
-      with:
-        yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+      - name: Login to Yandex Cloud Container Registry
+        id: login-cr
+        uses: yc-actions/yc-cr-login@v1
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
 
-    - name: Build, tag, and push image to Yandex Cloud Container Registry
-      env:
-        CR_REGISTRY: ${{ vars.CR_REGISTRY }}
-        CR_REPOSITORY: ${{ vars.CR_REPOSITORY }}
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
-        docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
-        echo "FROM cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG" | docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest -
-        docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
+      - name: Build, tag, and push image to Yandex Cloud Container Registry
+        env:
+          CR_REGISTRY: ${{ vars.CR_REGISTRY }}
+          CR_REPOSITORY: ${{ vars.CR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
+          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
+          echo "FROM cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG" | docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest -
+          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
