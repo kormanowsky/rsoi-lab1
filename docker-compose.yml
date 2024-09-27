@@ -14,7 +14,7 @@ services:
     ports:
       - "5432:5432"
   app: 
-    image: rsoi-1
+    image: ghcr.io/kormanowsky/rsoi-lab1:latest
     container_name: app
     restart: unless-stopped
     environment:
