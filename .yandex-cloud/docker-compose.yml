@@ -13,6 +13,7 @@ services:
   app: 
     image: cr.yandex/{{ env.CR_REGISTRY }}/{{ env.CR_REPOSITORY }}:latest
     container_name: app
+    pull_policy: always
     restart: unless-stopped
     environment:
       RSOI1_PORT: 8888
