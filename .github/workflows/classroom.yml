@@ -71,6 +71,8 @@ jobs:
 
       - name: Autograding
         uses: education/autograding@v1
+        env: 
+          PUBLIC_URL: ${{ vars.PUBLIC_URL }}
         continue-on-error: true
 
       - name: Github auto grader mark
