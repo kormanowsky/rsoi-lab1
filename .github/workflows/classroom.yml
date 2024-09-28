@@ -59,20 +59,22 @@ jobs:
           vm-subnet-id: ${{ vars.YC_SUBNET_ID }}
           user-data-path: './.yandex-cloud/user-data.yml'
           docker-compose-path: './.yandex-cloud/docker-compose.yml'
+      
+      - name: Prepare API Tests
+        run: |
+          cd postman
+          echo '[{ "key": "baseUrl", "value": "${{ vars.PUBLIC_URL }}" }]' > "[inst][yc] Lab1.postman_environment.json"
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
         with:
           collection: postman/[inst] Lab1.postman_collection.json
           environment: postman/[inst][yc] Lab1.postman_environment.json
-          envVar: '[{ "key": "baseUrl", "value": "${{ vars.PUBLIC_URL }}" }]'
           delayRequest: 100
           reporters: '[ "cli" ]'
 
       - name: Autograding
         uses: education/autograding@v1
-        env: 
-          PUBLIC_URL: ${{ vars.PUBLIC_URL }}
         continue-on-error: true
 
       - name: Github auto grader mark
