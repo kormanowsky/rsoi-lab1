@@ -20,8 +20,7 @@ export class PersonServer {
     }
 
     start(): void {
-        // TODO: возможно, что-то написть в callback функции
-        this.server.listen(this.port, '0.0.0.0', () => {});
+        this.server.listen(this.port, '0.0.0.0');
     }
 
     stop(): void {
@@ -40,8 +39,6 @@ export class PersonServer {
             .get(this.handleGetOnePersonRequest)
             .patch(this.handleUpdateOnePersonRequest)
             .delete(this.handleDeleteOnePersonRequest);
-
-        // TODO: роут 404?
     }
 
     protected handleGetAllPersonsRequest(_, res): void {
@@ -51,7 +48,7 @@ export class PersonServer {
                 res.send(persons);
             })
             .catch((err) => {
-                // TODO
+                console.error(err);
                 res.sendStatus(500);
             });
     }
@@ -74,7 +71,6 @@ export class PersonServer {
             })
             .catch((err) => {
                 console.log(err);
-                // TODO
                 res.sendStatus(500);
             });
     }
@@ -98,6 +94,7 @@ export class PersonServer {
                     .sendStatus(201);
             })
             .catch((err) => {
+                console.error(err);
                 res.sendStatus(500);
             });
     }
@@ -106,7 +103,7 @@ export class PersonServer {
         const id = parseInt(req.params.id, 10);
 
         if (isNaN(id)) {
-            return res.status(404).send({});
+            return res.status(404).send();
         }
 
         const personData = req.body;
@@ -129,7 +126,7 @@ export class PersonServer {
                 }
             })
             .catch((err) => {
-                // TODO
+                console.error(err);
                 res.sendStatus(500);
             });
     }
@@ -141,7 +138,6 @@ export class PersonServer {
                 res.sendStatus(204);
             })
             .catch((err) => {
-                // TODO
                 console.error(err);
                 res.sendStatus(500);
             });
