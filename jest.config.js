@@ -4,5 +4,8 @@ module.exports = {
   transform: {
     "^.+.tsx?$": ["ts-jest",{}],
   },
-  reporters: ['default', 'jest-junit']
+  reporters: [
+    'default', 
+    ['jest-junit', {outputDirectory: 'reports', outputName: 'jest-junit.xml'}]
+  ],
 };
