@@ -11,18 +11,84 @@ jobs:
     name: Autograding
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      # TODO build, test and deploy project
+      - name: Install dependencies 
+        run: npm ci
+
+      - name: Run Unit Tests 
+        run: npx jest
+
+      - name: Create Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Jest Tests   
+          path: reports/jest-*.xml
+          reporter: jest-junit
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to Yandex Cloud Container Registry
+        id: login-cr
+        uses: yc-actions/yc-cr-login@v1
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      - name: Build, tag, and push image to Yandex Cloud Container Registry
+        env:
+          CR_REGISTRY: ${{ vars.YC_CR_REGISTRY }}
+          CR_REPOSITORY: ${{ vars.YC_CR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
+          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
+          echo "FROM cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG" | docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest -
+          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:latest
+
+      - name: Deploy COI VM
+        id: deploy-coi
+        uses: yc-actions/yc-coi-deploy@v2
+        env: 
+          YC_VM_USERNAME: ${{ secrets.YC_VM_USERNAME }}
+          YC_VM_SSH_KEY: ${{ secrets.YC_VM_SSH_KEY }}
+          CR_REGISTRY: ${{ vars.YC_CR_REGISTRY }}
+          CR_REPOSITORY: ${{ vars.YC_CR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          folder-id: ${{ vars.YC_FOLDER_ID }}
+          vm-name: ${{ vars.YC_VM_NAME }}
+          vm-service-account-id: ${{ vars.YC_SA_ID }}
+          vm-cores: 2
+          vm-memory: 2Gb
+          vm-core-fraction: 100
+          vm-subnet-id: ${{ vars.YC_SUBNET_ID }}
+          user-data-path: './.yandex-cloud/user-data.yml'
+          docker-compose-path: './.yandex-cloud/docker-compose.yml'
+      
+      - name: Prepare API Tests
+        run: |
+          cd postman
+          echo '[{ "key": "baseUrl", "value": "${{ vars.PUBLIC_URL }}" }]' > "[inst][yc] Lab1.postman_environment.json"
+          npx wait-on ${{ vars.PUBLIC_URL }}/api/v1/persons
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
         with:
           collection: postman/[inst] Lab1.postman_collection.json
-          environment: postman/[inst][heroku] Lab1.postman_environment.json
-          delayRequest: 100
+          environment: postman/[inst][yc] Lab1.postman_environment.json
+          delayRequest: 1000
           reporters: '[ "cli" ]'
 
       - name: Autograding
@@ -33,7 +99,7 @@ jobs:
         uses: Romanow/google-sheet-autograder-marker@v1.0
         with:
           google_token: ${{secrets.GOOGLE_API_KEY}}
-          sheet_id: "1xkgjUX6Qmk7rdJG-QPOToav-HWWtthJjnShIKnw3oIY"
+          sheet_id: "${{ vars.GOOGLE_SHEET_ID }}"
           homework_number: 1
           user_column: 'D'
           column_offset: 'F'

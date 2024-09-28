@@ -1,0 +1,25 @@
+version: "3"
+services:
+  postgres:
+    image: cr.yandex/{{ env.CR_REGISTRY }}/postgres:13
+    container_name: postgres
+    restart: on-failure
+    environment:
+      POSTGRES_USER: "{{ env.POSTGRES_USER }}"
+      POSTGRES_PASSWORD: "{{ env.POSTGRES_PASSWORD }}"
+      POSTGRES_DB: "{{ env.POSTGRES_DB }}"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  app: 
+    image: cr.yandex/{{ env.CR_REGISTRY }}/{{ env.CR_REPOSITORY }}:{{ env.IMAGE_TAG }}
+    container_name: app
+    pull_policy: always
+    restart: unless-stopped
+    environment:
+      RSOI1_PORT: 8888
+      RSOI1_STORAGE_CONN_STRING: "postgresql://{{ env.POSTGRES_USER }}:{{ env.POSTGRES_PASSWORD }}@postgres:5432/{{ env.POSTGRES_DB }}"
+    ports: 
+      - "8888:8888"
+
+volumes:
+  db-data:
