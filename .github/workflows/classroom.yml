@@ -62,6 +62,9 @@ jobs:
           CR_REGISTRY: ${{ vars.YC_CR_REGISTRY }}
           CR_REPOSITORY: ${{ vars.YC_CR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
           folder-id: ${{ vars.YC_FOLDER_ID }}

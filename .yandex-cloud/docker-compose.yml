@@ -5,9 +5,9 @@ services:
     container_name: postgres
     restart: on-failure
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: postgres
+      POSTGRES_USER: {{ env.POSTGRES_USER }}
+      POSTGRES_PASSWORD: {{ env.POSTGRES_PASSWORD }}
+      POSTGRES_DB: {{ env.POSTGRES_DB }}
     volumes:
       - db-data:/var/lib/postgresql/data
   app: 
@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
     environment:
       RSOI1_PORT: 8888
-      RSOI1_STORAGE_CONN_STRING: "postgresql://postgres:postgres@postgres:5432/postgres"
+      RSOI1_STORAGE_CONN_STRING: "postgresql://{{ env.POSTGRES_USER }}:{{ env.POSTGRES_PASSWORD }}@postgres:5432/{{ env.POSTGRES_DB }}"
     ports: 
       - "8888:8888"
 
