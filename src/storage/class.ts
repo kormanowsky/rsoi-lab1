@@ -52,22 +52,22 @@ export class PostgresPersonStorage implements PersonStorage {
 
         if (person.hasOwnProperty('name')) {
             params.push(person.name);
-            setExprs.push(`name = $${setExprs.length + 1}::TEXT`);
+            setExprs.push(`name = $${setExprs.length + 2}::TEXT`);
         }
 
         if (person.hasOwnProperty('age')) {
             params.push(person.age);
-            setExprs.push(`age = $${setExprs.length + 1}::INTEGER`);
+            setExprs.push(`age = $${setExprs.length + 2}::INTEGER`);
         }
 
         if (person.hasOwnProperty('work')) {
             params.push(person.work);
-            setExprs.push(`work = $${setExprs.length + 1}::TEXT`)
+            setExprs.push(`work = $${setExprs.length + 2}::TEXT`)
         }
 
         if (person.hasOwnProperty('address')) {
             params.push(person.address);
-            setExprs.push(`address = $${setExprs.length + 1}::TEXT`)
+            setExprs.push(`address = $${setExprs.length + 2}::TEXT`)
         }
 
         const result = await this.client.query(
