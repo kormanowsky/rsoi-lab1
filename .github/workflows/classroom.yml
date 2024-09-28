@@ -81,6 +81,7 @@ jobs:
         run: |
           cd postman
           echo '[{ "key": "baseUrl", "value": "${{ vars.PUBLIC_URL }}" }]' > "[inst][yc] Lab1.postman_environment.json"
+          npx wait-on ${{ vars.PUBLIC_URL }}/api/v1/persons
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
