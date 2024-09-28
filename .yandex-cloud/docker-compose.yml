@@ -5,9 +5,9 @@ services:
     container_name: postgres
     restart: on-failure
     environment:
-      POSTGRES_USER: {{ env.POSTGRES_USER }}
-      POSTGRES_PASSWORD: {{ env.POSTGRES_PASSWORD }}
-      POSTGRES_DB: {{ env.POSTGRES_DB }}
+      POSTGRES_USER: "{{ env.POSTGRES_USER }}"
+      POSTGRES_PASSWORD: "{{ env.POSTGRES_PASSWORD }}"
+      POSTGRES_DB: "{{ env.POSTGRES_DB }}"
     volumes:
       - db-data:/var/lib/postgresql/data
   app: 
